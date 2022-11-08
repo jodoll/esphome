@@ -1383,3 +1383,46 @@ async def aeha_action(var, config, args):
     template_ = await cg.templatable(config[CONF_ADDRESS], args, cg.uint16)
     cg.add(var.set_address(template_))
     cg.add(var.set_data(config[CONF_DATA]))
+
+
+# AvBus
+AvBusData, AvBusBinarySensor, AvBusTrigger, AvBusAction, AvBusDumper = declare_protocol(
+    "AvBus"
+)
+AVBUS_SCHEMA = cv.Schema(
+    {
+        cv.Required(CONF_ADDRESS): cv.hex_uint8_t,
+        cv.Required(CONF_COMMAND): cv.hex_uint8_t,
+    }
+)
+
+
+@register_binary_sensor("AvBus", AvBusBinarySensor, AVBUS_SCHEMA)
+def avbus_binary_sensor(var, config):
+    cg.add(
+        var.set_data(
+            cg.StructInitializer(
+                AvBusData,
+                ("address", config[CONF_ADDRESS]),
+                ("command", config[CONF_COMMAND]),
+            )
+        )
+    )
+
+
+@register_trigger("AvBus", AvBusTrigger, AvBusData)
+def avbus_trigger(var, config):
+    pass
+
+
+@register_dumper("AvBus", AvBusDumper)
+def avbus_dumper(var, config):
+    pass
+
+
+@register_action("nec", AvBusAction, AVBUS_SCHEMA)
+async def avbus_action(var, config, args):
+    template_ = await cg.templatable(config[CONF_ADDRESS], args, cg.uint8)
+    cg.add(var.set_address(template_))
+    template_ = await cg.templatable(config[CONF_COMMAND], args, cg.uint8)
+    cg.add(var.set_command(template_))
