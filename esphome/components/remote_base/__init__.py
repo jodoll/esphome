@@ -1410,17 +1410,17 @@ def avbus_binary_sensor(var, config):
     )
 
 
-@register_trigger("AvBus", AvBusTrigger, AvBusData)
+@register_trigger("avbus", AvBusTrigger, AvBusData)
 def avbus_trigger(var, config):
     pass
 
 
-@register_dumper("AvBus", AvBusDumper)
+@register_dumper("avbus", AvBusDumper)
 def avbus_dumper(var, config):
     pass
 
 
-@register_action("nec", AvBusAction, AVBUS_SCHEMA)
+@register_action("AvBus", AvBusAction, AVBUS_SCHEMA)
 async def avbus_action(var, config, args):
     template_ = await cg.templatable(config[CONF_ADDRESS], args, cg.uint8)
     cg.add(var.set_address(template_))
