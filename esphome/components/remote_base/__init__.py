@@ -1963,3 +1963,46 @@ async def mirage_action(var, config, args):
     vec_ = cg.std_vector.template(cg.uint8)
     template_ = await cg.templatable(config[CONF_CODE], args, vec_, vec_)
     cg.add(var.set_code(template_))
+
+
+# AvBus
+AvBusData, AvBusBinarySensor, AvBusTrigger, AvBusAction, AvBusDumper = declare_protocol(
+    "AvBus"
+)
+AVBUS_SCHEMA = cv.Schema(
+    {
+        cv.Required(CONF_ADDRESS): cv.hex_uint8_t,
+        cv.Required(CONF_COMMAND): cv.hex_uint8_t,
+    }
+)
+
+
+@register_binary_sensor("avbus", AvBusBinarySensor, AVBUS_SCHEMA)
+def avbus_binary_sensor(var, config):
+    cg.add(
+        var.set_data(
+            cg.StructInitializer(
+                AvBusData,
+                ("address", config[CONF_ADDRESS]),
+                ("command", config[CONF_COMMAND]),
+            )
+        )
+    )
+
+
+@register_trigger("avbus", AvBusTrigger, AvBusData)
+def avbus_trigger(var, config):
+    pass
+
+
+@register_dumper("avbus", AvBusDumper)
+def avbus_dumper(var, config):
+    pass
+
+
+@register_action("avbus", AvBusAction, AVBUS_SCHEMA)
+async def avbus_action(var, config, args):
+    template_ = await cg.templatable(config[CONF_ADDRESS], args, cg.uint8)
+    cg.add(var.set_address(template_))
+    template_ = await cg.templatable(config[CONF_COMMAND], args, cg.uint8)
+    cg.add(var.set_command(template_))
