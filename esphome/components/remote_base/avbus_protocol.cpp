@@ -44,30 +44,30 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
       .address = 0,
       .command = 0,
   };
-  // if (!src.expect_space(HEADER_US))
-  //   return {};
+  if (!src.expect_mark(HEADER_US))
+    return {};
 
-  for (uint8_t mask = 1; mask < 8; mask <<= 1) {
-    if (src.expect_item(BIT_ONE_US, BIT_ONE_SPACE_US)) {
+  for (uint8_t mask = 1; mask <= 16; mask <<= 1) {
+    if (src.peek_space(BIT_ONE_US) && src.peek_mark(BIT_ONE_SPACE_US, 1)) {
       data.address |= mask;
-    } else if (src.expect_item(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {
+    } else if (src.peek_space(BIT_ZERO_US), src.peek_mark(BIT_ZERO_SPACE_US, 1)) {
       data.address &= ~mask;
     } else {
       return {};
     }
   }
 
-  for (uint8_t mask = 1; mask < 8; mask <<= 1) {
-    if (src.expect_item(BIT_ONE_US, BIT_ONE_SPACE_US)) {
+  for (uint8_t mask = 1; mask <= 16; mask <<= 1) {
+    const uint32 extraLength = mask == 16 ? FOOTER_US : 0;
+    if (src.peek_space(BIT_ONE_US) && src.peek_mark(BIT_ONE_SPACE_US + extraLength, 1)) {
       data.command |= mask;
-    } else if (src.expect_item(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {
+    } else if (src.peek_space(BIT_ZERO_US), src.peek_mark(BIT_ZERO_SPACE_US + extraLength, 1)) {  
       data.command &= ~mask;
     } else {
       return {};
     }
   }
 
-  src.expect_space(FOOTER_US);
   return data;
 }
 void AvBusProtocol::dump(const AvBusData &data) {
