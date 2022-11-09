@@ -36,12 +36,14 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
 }
 
 optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
-  if (!src.expect_mark(HEADER_US)) {
+  if (!src.expect_space(HEADER_US)) {
     ESP_LOGD(TAG, "Command did not start with AvBusHeader");
     ESP_LOGD(TAG, "Starts with space %d", src.peek_space_at_least(1));
     ESP_LOGD(TAG, "Length of first item: %d", src.peek());
     return {};
   }
+  ESP_LOGD(TAG, "Continues with space %d", src.peek_space_at_least(1));
+  ESP_LOGD(TAG, "Length of next item: %d", src.peek());
 
   uint8_t parsedData = 0;
   for (uint8_t mask = (1 << 7); mask > 0; mask >>= 1) {
