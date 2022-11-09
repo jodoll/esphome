@@ -56,7 +56,7 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
   return data;
 }
 void AvBusProtocol::dump(const AvBusData &data) {
-  ESP_LOGD(TAG, "Received AvBus: address=%1$d, commandDecimal=%2$d", data.address, data.command);
+  ESP_LOGD(TAG, "Received AvBus: address=%1$d, command=%2$02X(%2$d", data.address, data.command);
 }
 
 }  // namespace remote_base
