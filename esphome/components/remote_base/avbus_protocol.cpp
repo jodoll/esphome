@@ -46,7 +46,7 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
     } else if (src.peek_space(BIT_ZERO_US) && src.peek_mark(BIT_ZERO_SPACE_US + extraMarkLength, 1)) {
       parsedData &= ~mask;
     } else {
-      return {};
+      // return {};
     }
     src.advance(2);
   }
