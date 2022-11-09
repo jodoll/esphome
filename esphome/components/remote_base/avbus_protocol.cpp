@@ -15,7 +15,7 @@ static const uint32_t BIT_ZERO_SPACE_US = BIT_TOTAL_US - BIT_ZERO_US;
 static const uint32_t FOOTER_US = 282000;
 
 void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
-  dst->reserve(1+8*2+1);
+  dst->reserve(1 + 8 * 2 + 1);
   dst->set_carrier_frequency(0);
 
   dst->mark(HEADER_US);
@@ -37,23 +37,18 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
 
 optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
   if (!src.expect_space(HEADER_US)) {
-    ESP_LOGD(TAG, "Command did not start with AvBusHeader");
-    ESP_LOGD(TAG, "Starts with space %d", src.peek_space_at_least(1));
-    ESP_LOGD(TAG, "Length of first item: %d", src.peek());
     return {};
   }
-  ESP_LOGD(TAG, "Continues with space %d", src.peek_space_at_least(1));
-  ESP_LOGD(TAG, "Length of next item: %d", src.peek());
 
   uint8_t parsedData = 0;
   for (uint8_t mask = (1 << 7); mask > 0; mask >>= 1) {
+    // Last space continues without interruption as footer, so the last space is longer
     const uint32_t extraMarkLength = mask == 1 ? FOOTER_US : 0;
     if (src.peek_item(BIT_ONE_US, BIT_ONE_SPACE_US + extraMarkLength)) {
       parsedData |= mask;
     } else if (src.peek_item(BIT_ZERO_US, BIT_ZERO_SPACE_US + extraMarkLength)) {
       parsedData &= ~mask;
     } else {
-      ESP_LOGD(TAG, "Parsing AvBus command failed with mask %X, got so far %X", mask, parsedData);
       return {};
     }
     src.advance(2);
@@ -69,8 +64,11 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
 
   return data;
 }
+
 void AvBusProtocol::dump(const AvBusData &data) {
-  ESP_LOGD(TAG, "Received AvBus: address=%1$d, command=%2$02X(%2$d", data.address, data.command);
+  ESP_LOGD(TAG, "Received AvBus: address=%1$d, command=0x%2$02X(%2$d)", 3, 0xA1);
+  ESP_LOGD(TAG, "Received AvBus: address=%1$d, command=0x%2$02X(%2$d)", data.address, data.command);
+  ESP_LOGD(TAG, "Received AvBus: address=%d, command=0x%02X", data.address, data.command);
 }
 
 }  // namespace remote_base
