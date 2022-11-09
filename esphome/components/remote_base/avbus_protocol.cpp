@@ -15,7 +15,7 @@ static const uint32_t BIT_ZERO_SPACE_US = BIT_TOTAL_US - BIT_ZERO_US;
 static const uint32_t FOOTER_US = 282000;
 
 void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
-  dst->reserve(68);
+  dst->reserve(1+8*2+1);
   dst->set_carrier_frequency(0);
 
   dst->mark(HEADER_US);
