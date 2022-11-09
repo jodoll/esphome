@@ -20,7 +20,7 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
 
   dst->space(HEADER_US);
 
-  for (uint8_t mask = 1; mask < 8; mask <<= 1) {
+  for (uint8_t mask = 8; mask > 0; mask >>= 1) {
     if (data.address & mask) {
       dst->item(BIT_ONE_US, BIT_ONE_SPACE_US);
     } else {
@@ -28,7 +28,7 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
     }
   }
 
-  for (uint8_t mask = 1; mask < 8; mask <<= 1) {
+  for (uint8_t mask = 8; mask > 0; mask >>= 1) {
     if (data.command & mask) {
       dst->item(BIT_ONE_US, BIT_ONE_SPACE_US);
     } else {
