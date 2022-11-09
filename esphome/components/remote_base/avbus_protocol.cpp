@@ -18,19 +18,21 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
   dst->reserve(68);
   dst->set_carrier_frequency(0);
 
-  dst->space(HEADER_US);
+  dst->mark(HEADER_US);
 
   uint8_t combinedData = (data.address << 5) | (data.command & 0b00011111);
 
   for (uint8_t mask = (1<<7); mask > 0; mask >>= 1) {
     if (combinedData & mask) {
-      dst->item(BIT_ONE_US, BIT_ONE_SPACE_US);
+      dst->space(BIT_ONE_US);
+      dst->mark(BIT_ONE_SPACE_US);
     } else {
-      dst->item(BIT_ZERO_US, BIT_ZERO_SPACE_US);
+      dst->space(BIT_ZERO_US);
+      dst->mark(BIT_ZERO_SPACE_US);
     }
   }
 
-  dst->space(FOOTER_US);
+  dst->mark(FOOTER_US);
 }
 
 optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
