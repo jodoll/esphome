@@ -40,38 +40,21 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
 }
 
 optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
+  uint8_t parsedData = 0;
+  for (uint8_t mask = (1 << 7); mask > 0; mask >>= 1) {
+    if (src.expect_pulse_with_gap(BIT_ONE_US, BIT_ONE_SPACE_US)) {
+      parsedData |= mask;
+    } else if (src.expect_pulse_with_gap(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {
+      parsedData &= ~mask;
+    } else {
+      return {};
+    }
+  }
+
   AvBusData data{
-      .address = 0,
-      .command = 0,
+    .address = (0xF0 & parsedData) >> 4,
+    .command = (0x0F & parsedData),
   };
-
-  for (uint8_t mask = 8; mask > 0; mask >>= 1) {
-    if (src.expect_item(BIT_ONE_US, BIT_ONE_SPACE_US)) {
-      data.address |= mask;
-    } else if (src.expect_item(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {
-      data.address &= ~mask;
-    } else {
-      return {};
-    }
-  }
-
-  for (uint8_t mask = 8; mask > 1; mask >>= 1) {
-    if (src.expect_item(BIT_ONE_US, BIT_ONE_SPACE_US)) {
-      data.command |= mask;
-    } else if (src.expect_item(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {  
-      data.command &= ~mask;
-    } else {
-      return {};
-    }
-  }
-
-  if (src.expect_pulse_with_gap(BIT_ONE_US, BIT_ONE_SPACE_US)) {
-    data.command |= 1;
-  } else if (src.expect_pulse_with_gap(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {  
-    data.command &= ~1;
-  } else {
-    return {};
-  }
 
   return data;
 }
