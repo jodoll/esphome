@@ -44,8 +44,7 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
       .address = 0,
       .command = 0,
   };
-  // if (!src.expect_mark(HEADER_US))
-  //   return {};
+
   for (uint8_t mask = 8; mask > 0; mask >>= 1) {
     if (src.expect_item(BIT_ONE_US, BIT_ONE_SPACE_US)) {
       data.address |= mask;
