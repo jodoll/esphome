@@ -48,12 +48,12 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
   uint8_t parsedData = 0;
   for (uint8_t mask = (1 << 7); mask > 0; mask >>= 1) {
     const uint32_t extraMarkLength = mask == 1 ? FOOTER_US : 0;
-    if (src.peek_space(BIT_ONE_US) && src.peek_mark(BIT_ONE_SPACE_US + extraMarkLength, 1)) {
+    if (src.peek_item(BIT_ONE_US, BIT_ONE_SPACE_US + extraMarkLength)) {
       parsedData |= mask;
-    } else if (src.peek_space(BIT_ZERO_US) && src.peek_mark(BIT_ZERO_SPACE_US + extraMarkLength, 1)) {
+    } else if (src.peek_item(BIT_ZERO_US, BIT_ZERO_SPACE_US + extraMarkLength)) {
       parsedData &= ~mask;
     } else {
-      ESP_LOGD(TAG, "Parsing AvBus command failed with mask %02X, got so far %02X", mask, parsedData);
+      ESP_LOGD(TAG, "Parsing AvBus command failed with mask %X, got so far %X", mask, parsedData);
       return {};
     }
     src.advance(2);
