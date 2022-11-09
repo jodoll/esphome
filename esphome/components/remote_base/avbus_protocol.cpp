@@ -20,7 +20,7 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
 
   dst->space(HEADER_US);
 
-  uint8_t combinedData = (data.address << 4) | (data.command & 0xF);
+  uint8_t combinedData = (data.address << 5) | (data.command & 0x00011111);
 
   for (uint8_t mask = (1<<7); mask > 0; mask >>= 1) {
     if (combinedData & mask) {
@@ -46,14 +46,14 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
   }
 
   AvBusData data{
-    .address = (0xF0 & parsedData) >> 4,
-    .command = (0x0F & parsedData),
+    .address = (0b11100000 & parsedData) >> 5,
+    .command = (0b00011111 & parsedData),
   };
 
   return data;
 }
 void AvBusProtocol::dump(const AvBusData &data) {
-  ESP_LOGD(TAG, "Received AvBus: address=0x%01X, command=0x%01X", data.address, data.command);
+  ESP_LOGD(TAG, "Received AvBus: address=0x%01d, command=0x%02X", data.address, data.command);
 }
 
 }  // namespace remote_base
