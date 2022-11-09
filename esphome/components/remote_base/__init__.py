@@ -1397,7 +1397,7 @@ AVBUS_SCHEMA = cv.Schema(
 )
 
 
-@register_binary_sensor("AvBus", AvBusBinarySensor, AVBUS_SCHEMA)
+@register_binary_sensor("avbus", AvBusBinarySensor, AVBUS_SCHEMA)
 def avbus_binary_sensor(var, config):
     cg.add(
         var.set_data(
@@ -1420,7 +1420,7 @@ def avbus_dumper(var, config):
     pass
 
 
-@register_action("AvBus", AvBusAction, AVBUS_SCHEMA)
+@register_action("avbus", AvBusAction, AVBUS_SCHEMA)
 async def avbus_action(var, config, args):
     template_ = await cg.templatable(config[CONF_ADDRESS], args, cg.uint8)
     cg.add(var.set_address(template_))
