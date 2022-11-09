@@ -9,9 +9,9 @@ static const char *const TAG = "remote.nec";
 static const uint32_t HEADER_US = 10000;
 static const uint32_t BIT_TOTAL_US = 1000;
 static const uint32_t BIT_ONE_US = 300;
-static const uint32_t BIT_ONE_SPACE_US=BIT_TOTAL_US - BIT_ONE_US;
+static const uint32_t BIT_ONE_SPACE_US = BIT_TOTAL_US - BIT_ONE_US;
 static const uint32_t BIT_ZERO_US = 700;
-static const uint32_t BIT_ZERO_SPACE_US=BIT_TOTAL_US - BIT_ZERO_US;
+static const uint32_t BIT_ZERO_SPACE_US = BIT_TOTAL_US - BIT_ZERO_US;
 static const uint32_t FOOTER_US = 282000;
 
 void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
@@ -22,7 +22,7 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
 
   uint8_t combinedData = (data.address << 5) | (data.command & 0b00011111);
 
-  for (uint8_t mask = (1<<7); mask > 0; mask >>= 1) {
+  for (uint8_t mask = (1 << 7); mask > 0; mask >>= 1) {
     if (combinedData & mask) {
       dst->space(BIT_ONE_US);
       dst->mark(BIT_ONE_SPACE_US);
@@ -36,7 +36,10 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
 }
 
 optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
-  src.expect_mark(HEADER_US);
+  if (!src.expect_mark(HEADER_US)) {
+    ESP_LOGD(TAG, "Command did not start with AvBusHeader");
+    return {};
+  }
 
   uint8_t parsedData = 0;
   for (uint8_t mask = (1 << 7); mask > 0; mask >>= 1) {
@@ -46,7 +49,8 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
     } else if (src.peek_space(BIT_ZERO_US) && src.peek_mark(BIT_ZERO_SPACE_US + extraMarkLength, 1)) {
       parsedData &= ~mask;
     } else {
-      // return {};
+      ESP_LOGD(TAG, "Parsing AvBus command failed with mask %02X, got so far %02X", mask, parsedData);
+      return {};
     }
     src.advance(2);
   }
@@ -55,8 +59,8 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
   uint8_t command = ((uint8_t) 0b00011111 & parsedData);
 
   AvBusData data{
-    .address = address,
-    .command = command,
+      .address = address,
+      .command = command,
   };
 
   return data;
