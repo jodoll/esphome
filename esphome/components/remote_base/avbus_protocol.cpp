@@ -62,15 +62,16 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
     } else if (src.expect_item(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {  
       data.command &= ~mask;
     } else {
-      // return {};
+      return {};
     }
   }
-  if (src.expect_mark(BIT_ONE_US)) {
+
+  if (src.expect_pulse_with_gap(BIT_ONE_US, BIT_ONE_SPACE_US)) {
     data.command |= 1;
-  } else if (src.expect_mark(BIT_ZERO_US)) {  
+  } else if (src.expect_pulse_with_gap(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {  
     data.command &= ~1;
   } else {
-    // return {};
+    return {};
   }
 
   return data;
