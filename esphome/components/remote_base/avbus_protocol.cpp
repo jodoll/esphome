@@ -42,16 +42,13 @@ optional<AvBusData> AvBusProtocol::decode(RemoteReceiveData src) {
 
   uint8_t parsedData = 0;
   for (uint8_t mask = (1 << 7); mask > 0; mask >>= 1) {
-    // Last space continues without interruption as footer, so the last space is longer
-    const uint32_t extraMarkLength = mask == 1 ? FOOTER_US : 0;
-    if (src.peek_item(BIT_ONE_US, BIT_ONE_SPACE_US + extraMarkLength)) {
+    if (src.expect_pulse_with_gap(BIT_ONE_US, BIT_ONE_SPACE_US)) {
       parsedData |= mask;
-    } else if (src.peek_item(BIT_ZERO_US, BIT_ZERO_SPACE_US + extraMarkLength)) {
+    } else if (src.expect_pulse_with_gap(BIT_ZERO_US, BIT_ZERO_SPACE_US)) {
       parsedData &= ~mask;
     } else {
       return {};
     }
-    src.advance(2);
   }
 
   uint8_t address = ((uint8_t) 0b11100000 & parsedData) >> 5;
