@@ -20,7 +20,7 @@ void AvBusProtocol::encode(RemoteTransmitData *dst, const AvBusData &data) {
 
   dst->space(HEADER_US);
 
-  uint8_t combinedData = (data.address << 5) | (data.command & 0x00011111);
+  uint8_t combinedData = (data.address << 5) | (data.command & 0b00011111);
 
   for (uint8_t mask = (1<<7); mask > 0; mask >>= 1) {
     if (combinedData & mask) {
