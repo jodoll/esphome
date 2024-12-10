@@ -1,11 +1,11 @@
-# ESPHome [![Discord Chat](https://img.shields.io/discord/429907082951524364.svg)](https://discord.gg/KhAMKrd) [![GitHub release](https://img.shields.io/github/release/esphome/esphome.svg)](https://GitHub.com/esphome/esphome/releases/)
-
+# AVBus Protocol for ESPHome 
 [![ESPHome Logo](https://esphome.io/_images/logo-text.png)](https://esphome.io/)
 
-**Documentation:** https://esphome.io/
+This is a fork of [ESPHome](https://esphome.io/) that provides an implementation of the AVBus protocol.
+You can use the external component functionality to get the implementation, no need to switch completely to this fork.
+Please have a look at my [AvBus Project](https://github.com/jodoll/avbus_protocol) for instructions and more Details.
 
-For issues, please go to [the issue tracker](https://github.com/esphome/issues/issues).
 
-For feature requests, please see [feature requests](https://github.com/esphome/feature-requests/issues).
+**AvBus Documentation:** https://github.com/jodoll/avbus_protocol  
+**EspHome Documentation:** https://esphome.io/  
 
-[![ESPHome - A project from the Open Home Foundation](https://www.openhomefoundation.org/badges/esphome.png)](https://www.openhomefoundation.org/)
